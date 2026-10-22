@@ -37,7 +37,7 @@ The quality of semantic search and retrieval-augmented generation (RAG) over lon
 
 If you find our work helpful, please cite us.
 ```BibTeX
-@article{kozhemyakova2026chunking,
+@article{kozhemiakova2026chunking,
     title={Comparing Chunking Strategies for Patent Documents in Semantic Search and RAG},
     author={Kozhemiakova, Elizaveta and Ischenko, Roman},
     year={2026}

@@ -20,4 +20,4 @@ pip install -r requirements.txt
 
 ## Usage
 
-TODO
+- [`section_headers/`](section_headers) — выделение разделов патента: эксперимент, результаты и запуск описаны в его README.

@@ -44,7 +44,7 @@
 %%%
 
 
-\title{Investigation of Information Retrieval Methods in RAG Systems for Full-Text Scientific Papers}
+\title{Comparing Chunking Strategies for Patent Documents\\in Semantic Search and RAG}
 
 
 % The \author macro works with any number of authors. There are two commands
@@ -57,15 +57,13 @@
 
 
 \author{
-  Name Surname\\
-  MIPT\\
-  Moscow, Russia\\
-  \texttt{email@phystech.edu}\\
+  Elizaveta Kozhemiakova\\
+  TODO: affiliation\\
+  \texttt{TODO: email}\\
   \And
-  Name Surname\\
-  MIPT\\
-  Moscow, Russia\\
-  \texttt{email@phystech.edu}\\
+  Roman Ischenko\\
+  TODO: affiliation\\
+  \texttt{TODO: email}\\
 }
 
 
@@ -75,10 +73,11 @@
 \maketitle
 
 \begin{abstract}
-    TODO
+    The quality of semantic search and retrieval-augmented generation (RAG) over long technical documents largely depends on how a document is split into fragments (chunks) before embedding. This work looks for a way to chunk and embed patent documents that improves retrieval quality with off-the-shelf text embedding models, without fine-tuning them. A patent is a long and heterogeneous document. Its sections (summary of the invention, prior art, detailed description, claims) differ greatly in how informative they are, and fixed-length chunking mixes them together, blurs the meaning of each fragment and lets boilerplate text dominate the search results. We propose to form chunks along the semantic structure of the document itself, by sections and by blocks marked with trigger phrases, rather than by text length. On a corpus of 37,727 US patents, these structure-aware schemes are compared with fixed-length chunking, paragraph grouping and hierarchical indexing built on language model summaries. Patent citations of prior-art documents serve as expert relevance labels. We also estimate how much each section contributes to retrieval quality.
+    The results make it possible to determine which parts of a patent document should be embedded first. In practice, the work gives recommendations on choosing a chunking scheme for search, clustering and RAG over scientific and technical information.
 \end{abstract}
 
-\textbf{Keywords:} TODO
+\textbf{Keywords:} retrieval-augmented generation, dense retrieval, document chunking, patent documents, text embeddings
 
 \section{Introduction}\label{sec:intro}
 

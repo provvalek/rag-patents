@@ -1,12 +1,84 @@
-# LinkReview
+# Обзор литературы
 
-- Here we collect all the works that may be useful for writing our paper
-- We divide these works by topic in order to structure them
+Здесь собраны работы, связанные с проектом. В первой таблице — три ключевые статьи, разобранные подробно. Во второй — остальные найденные работы и то, чем каждая из них полезна проекту.
 
-> [!NOTE]
-> This review table will be updated, so it is not a final version.
+## Направления
 
-| Topic | Title | Year | Authors | Paper | Code | Summary |
+1. **Нарезка документов** — как способ разбиения документа на фрагменты влияет на качество векторного поиска.
+2. **Иерархический поиск** — многоуровневые представления длинных документов.
+3. **Поиск по патентам** — предметно-ориентированные представления патентных документов.
+
+## Ключевые статьи
+
+| Направление | Название | Год | Авторы | Статья | Код | Краткое содержание |
 | :--- | :--- | :---: | :--- | :---: | :---: | :--- |
-| Topic #1 | Paper Title | Publishing Year | Author #1 et al. | [arXiv/DOI]() | [GitHub]() | Short summary to be inserted in the Related Work section |
-|  | TODO | TODO | TODO | TODO | TODO | TODO |
+| Нарезка | A Systematic Investigation of Document Chunking Strategies and Embedding Sensitivity | 2026 | Shaukat, Adnan, Kuhn | [arXiv](https://arxiv.org/abs/2603.06976) | — | Сравнение 36 стратегий нарезки на 6 предметных областях и 5 моделях векторных представлений при фиксированном поисковике. Лучшая в целом — группировка абзацев (Paragraph Group Chunking: по 2 абзаца с перекрытием в 1): nDCG@5 0,459 против 0,244 у нарезки фиксированной длины. Естественные границы текста работают лучше сложного семантического разбиения; нарезка с помощью LLM дает небольшой прирост, но очень дорога при индексации. Для юридических текстов, самых близких к патентам, группировка абзацев тоже лучшая. **Ограничения:** все абзацы считаются равноценными, патентов в сравнении нет. **Для проекта:** базовые методы (фиксированная длина, группировка абзацев) и схема эксперимента. |
+| Иерархический поиск | RAPTOR: Recursive Abstractive Processing for Tree-Organized Retrieval | 2024 | Sarthi et al. | [arXiv](https://arxiv.org/abs/2401.18059) | [GitHub](https://github.com/parthsarthi03/raptor) | Строит дерево: фрагменты → кластеризация GMM (UMAP, BIC) → суммаризация LLM, и так рекурсивно. Лучше всего работает поиск по «сплющенному» дереву (все узлы в одном списке, бюджет около 2000 токенов): общие вопросы находят узлы-суммаризации, детальные — листья. Улучшает SBERT, DPR и BM25 на NarrativeQA, QASPER и QuALITY. **Ограничения:** дорогая индексация (много вызовов LLM), около 4% узлов содержат галлюцинации, иерархия восстанавливается кластеризацией, хотя у патента она уже есть. **Для проекта:** дорогой базовый метод, верхний ориентир. |
+| Поиск по патентам | PAI-NET: Retrieval-Augmented Generation Patent Network Using Prior Art Information | 2025 | Lee, Bai | Systems 13(4):259 (MDPI) | — | Контрастивная многозадачная модель на тройках: патент, процитированный им документ уровня техники, несвязанный патент того же класса CPC. Функция потерь — классификация CPC плюс triplet margin (m = 3). Данные: KPRIS (100k/20k), AIPD (USPTO, 10k). MRR 0,76 против 0,56–0,59 у универсальных кодировщиков. **Ограничения:** нужно обучать модель; не отвечает на вопрос, какие части документа векторизовать. **Для проекта:** ссылки на уровень техники как разметка релевантности. |
+
+## Другие работы
+
+| Направление | Название | Год | Авторы | Статья | Чем полезна |
+| :--- | :--- | :---: | :--- | :---: | :--- |
+| Нарезка | Is Semantic Chunking Worth the Computational Cost? | 2025 | Qu, Bao, Tu | [arXiv](https://arxiv.org/abs/2410.13070) | Семантическая нарезка по близости векторов на реальных данных не обгоняет нарезку фиксированной длины стабильно. Довод в пользу дешевых базовых методов. |
+| Нарезка | Rethinking Chunk Size for Long-Document Retrieval: A Multi-Dataset Analysis | 2025 | Bhat et al. | [arXiv](https://arxiv.org/abs/2505.21700) | Оптимальный размер фрагмента зависит от данных и модели (64–128 или 512–1024 токенов). Нарезку фиксированной длины нужно проверять на нескольких размерах. |
+| Нарезка | Late Chunking: Contextual Chunk Embeddings Using Long-Context Embedding Models | 2024 | Günther et al. | [arXiv](https://arxiv.org/abs/2409.04701) | Документ целиком проходит через модель, затем векторы токенов усредняются по фрагментам. Другой способ сохранить контекст; кандидат в дополнительные базовые методы. |
+| Нарезка | Dense X Retrieval: What Retrieval Granularity Should We Use? | 2024 | Chen et al. | [arXiv](https://arxiv.org/abs/2312.06648) | Короткие утверждения (propositions) как единицы поиска работают лучше абзацев и предложений. Единица поиска важна не меньше поисковика. |
+| Нарезка | Mix-of-Granularity: Optimize the Chunking Granularity for Retrieval-Augmented Generation | 2025 | Zhong et al. | [arXiv](https://arxiv.org/abs/2406.00456) | Маршрутизатор выбирает гранулярность фрагментов под запрос. Близко к выбору гранулярности для разных разделов патента. |
+| Нарезка | LumberChunker: Long-Form Narrative Document Segmentation | 2024 | Duarte et al. | [arXiv](https://arxiv.org/abs/2406.17526) | LLM находит места смены темы и ставит там границы фрагментов. Пример дорогой нарезки с помощью LLM. |
+| Нарезка | Meta-Chunking: Learning Efficient Text Segmentation via Logical Perception | 2024 | Zhao et al. | [arXiv](https://arxiv.org/abs/2410.12788) | Границы фрагментов по перплексии небольшой языковой модели. Более дешевая альтернатива нарезке с LLM. |
+| Нарезка | Financial Report Chunking for Effective Retrieval Augmented Generation | 2024 | Jimeno Yepes et al. | [arXiv](https://arxiv.org/abs/2402.05131) | Нарезка финансовых отчетов по элементам документа (заголовки, таблицы, абзацы) улучшает RAG. Самая близкая к нашей идея структурной нарезки, но в другой области. |
+| Нарезка | LongRAG: Enhancing Retrieval-Augmented Generation with Long-context LLMs | 2024 | Jiang et al. | [arXiv](https://arxiv.org/abs/2406.15319) | Длинные единицы поиска, вплоть до целых документов. Противоположный край шкалы гранулярности. |
+| Нарезка | Evaluating Chunking Strategies for Retrieval | 2024 | Smith, Troynikov | [Отчет](https://research.trychroma.com/evaluating-chunking) | Технический отчет Chroma: оценка популярных способов нарезки на уровне токенов. Практический ориентир для фиксированной и рекурсивной нарезки. |
+| Иерархический поиск | Walking Down the Memory Maze: Beyond Context Limit through Interactive Reading | 2023 | Chen et al. | [arXiv](https://arxiv.org/abs/2310.05029) | MemWalker: дерево суммаризаций, по которому перемещается LLM. Еще один иерархический подход, близкий к обходу дерева в RAPTOR. |
+| Иерархический поиск | From Local to Global: A Graph RAG Approach to Query-Focused Summarization | 2024 | Edge et al. | [arXiv](https://arxiv.org/abs/2404.16130) | Граф знаний и суммаризации сообществ для общих вопросов. Показывает цену индексов, построенных LLM. |
+| Иерархический поиск | Deeper Text Understanding for IR with Contextual Neural Language Modeling | 2019 | Dai, Callan | [arXiv](https://arxiv.org/abs/1905.09217) | Оценка документа по оценкам его фрагментов: первый фрагмент, максимум или сумма (FirstP / MaxP / SumP). Нужна, чтобы из оценок фрагментов получить ранжирование патентов. |
+| Иерархический поиск | Beyond 512 Tokens: Siamese Multi-depth Transformer-based Hierarchical Encoder for Long-Form Document Matching | 2020 | Yang et al. | [arXiv](https://arxiv.org/abs/2004.12297) | SMITH: иерархический кодировщик для сравнения длинных документов. Альтернатива нарезке на уровне модели. |
+| Иерархический поиск | Longformer: The Long-Document Transformer | 2020 | Beltagy et al. | [arXiv](https://arxiv.org/abs/2004.05150) | Разреженное внимание для длинных входов. Объясняет, почему длинные документы трудны для кодировщиков. |
+| Иерархический поиск | Lost in the Middle: How Language Models Use Long Contexts | 2024 | Liu et al. | [arXiv](https://arxiv.org/abs/2307.03172) | LLM плохо используют сведения из середины длинного контекста. Довод в пользу поиска фрагментов, а не передачи всего патента модели. |
+| RAG и поиск | Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks | 2020 | Lewis et al. | [arXiv](https://arxiv.org/abs/2005.11401) | Исходная статья о RAG. Определение постановки. |
+| RAG и поиск | Retrieval-Augmented Generation for Large Language Models: A Survey | 2023 | Gao et al. | [arXiv](https://arxiv.org/abs/2312.10997) | Обзор конвейеров RAG, включая выбор нарезки и индексации. Материал для введения. |
+| RAG и поиск | Searching for Best Practices in Retrieval-Augmented Generation | 2024 | Wang et al. | [arXiv](https://arxiv.org/abs/2407.01219) | Сравнение вариантов каждого этапа RAG, включая размер фрагмента. Типичные настройки по умолчанию. |
+| RAG и поиск | Dense Passage Retrieval for Open-Domain Question Answering | 2020 | Karpukhin et al. | [arXiv](https://arxiv.org/abs/2004.04906) | DPR: векторный поиск с двумя кодировщиками. Тот тип поисковика, который используется в проекте. |
+| RAG и поиск | ColBERT: Efficient and Effective Passage Search via Contextualized Late Interaction over BERT | 2020 | Khattab, Zaharia | [arXiv](https://arxiv.org/abs/2004.12832) | Позднее взаимодействие токенов запроса и документа. Альтернатива одному вектору на фрагмент. |
+| RAG и поиск | ColBERTv2: Effective and Efficient Retrieval via Lightweight Late Interaction | 2022 | Santhanam et al. | [arXiv](https://arxiv.org/abs/2112.01488) | Сжатая версия ColBERT. Возможный более сильный поисковик для дальнейшей работы. |
+| RAG и поиск | The Probabilistic Relevance Framework: BM25 and Beyond | 2009 | Robertson, Zaragoza | [DOI](https://doi.org/10.1561/1500000019) | BM25. Лексический базовый метод; в патентах много точных технических терминов. |
+| RAG и поиск | Passage Re-ranking with BERT | 2019 | Nogueira, Cho | [arXiv](https://arxiv.org/abs/1901.04085) | Переранжирование кросс-кодировщиком. Этап переранжирования в конвейере. |
+| RAG и поиск | Precise Zero-Shot Dense Retrieval without Relevance Labels | 2023 | Gao et al. | [arXiv](https://arxiv.org/abs/2212.10496) | HyDE: расширение запроса сгенерированным документом. Способ сблизить короткий запрос и длинный патент. |
+| RAG и поиск | Billion-scale Similarity Search with GPUs | 2019 | Johnson, Douze, Jégou | [arXiv](https://arxiv.org/abs/1702.08734) | FAISS. Векторный индекс для экспериментов. |
+| RAG и поиск | Efficient and Robust Approximate Nearest Neighbor Search Using Hierarchical Navigable Small World Graphs | 2018 | Malkov, Yashunin | [arXiv](https://arxiv.org/abs/1603.09320) | HNSW, приближенный поиск ближайших соседей. Размер индекса растет с числом фрагментов. |
+| RAG и поиск | RAGAS: Automated Evaluation of Retrieval Augmented Generation | 2024 | Es et al. | [arXiv](https://arxiv.org/abs/2309.15217) | Метрики RAG без эталонных ответов. Возможная оценка всего конвейера, а не только поиска. |
+| Векторные представления | Sentence-BERT: Sentence Embeddings using Siamese BERT-Networks | 2019 | Reimers, Gurevych | [arXiv](https://arxiv.org/abs/1908.10084) | Векторные представления предложений с сиамским кодировщиком. Основа готовых моделей векторных представлений. |
+| Векторные представления | Text Embeddings by Weakly-Supervised Contrastive Pre-training | 2022 | Wang et al. | [arXiv](https://arxiv.org/abs/2212.03533) | Модели E5. Кандидат в готовую модель. |
+| Векторные представления | C-Pack: Packed Resources For General Chinese Embeddings | 2023 | Xiao et al. | [arXiv](https://arxiv.org/abs/2309.07597) | Модели BGE. Кандидат в готовую модель. |
+| Векторные представления | M3-Embedding: Multi-Linguality, Multi-Functionality, Multi-Granularity Text Embeddings Through Self-Knowledge Distillation | 2024 | Chen et al. | [arXiv](https://arxiv.org/abs/2402.03216) | BGE-M3 со входом до 8192 токенов. Кандидат для длинных разделов. |
+| Векторные представления | Jina Embeddings 2: 8192-Token General-Purpose Text Embeddings for Long Documents | 2023 | Günther et al. | [arXiv](https://arxiv.org/abs/2310.19923) | Модель с длинным контекстом. Нужна для позднего разбиения (late chunking). |
+| Векторные представления | Nomic Embed: Training a Reproducible Long Context Text Embedder | 2024 | Nussbaum et al. | [arXiv](https://arxiv.org/abs/2402.01613) | Открытая модель с длинным контекстом. Кандидат в готовую модель. |
+| Векторные представления | BEIR: A Heterogeneous Benchmark for Zero-shot Evaluation of Information Retrieval Models | 2021 | Thakur et al. | [arXiv](https://arxiv.org/abs/2104.08663) | Бенчмарк поиска без дообучения. Протокол оценки и метрики (nDCG@10). |
+| Векторные представления | MTEB: Massive Text Embedding Benchmark | 2023 | Muennighoff et al. | [arXiv](https://arxiv.org/abs/2210.07316) | Рейтинг моделей векторных представлений. По нему выбирается модель. |
+| Векторные представления | SPECTER: Document-level Representation Learning using Citation-informed Transformers | 2020 | Cohan et al. | [arXiv](https://arxiv.org/abs/2004.07180) | Цитирования как сигнал для обучения векторных представлений документов. Та же идея, что и ссылки на уровень техники. |
+| Поиск по патентам | Automating the Search for a Patent's Prior Art with a Full Text Similarity Search | 2019 | Helmers et al. | [arXiv](https://arxiv.org/abs/1901.03136) | Поиск уровня техники по сходству полного текста, оценка по ссылкам из отчетов о поиске. Ближайшая работа о том, какой текст патента сравнивать. |
+| Поиск по патентам | PaECTER: Patent-level Representation Learning using Citation-informed Transformers | 2024 | Ghosh et al. | [arXiv](https://arxiv.org/abs/2402.19411) | Кодировщик патентов, дообученный на ссылках экспертов; открытая модель на Hugging Face. Предметно-ориентированная модель для сравнения. |
+| Поиск по патентам | PatentSBERTa: A Deep NLP based Hybrid Model for Patent Distance and Classification using Augmented SBERT | 2021 | Bekamiri, Hain, Jurowetzki | [arXiv](https://arxiv.org/abs/2103.11933) | SBERT на формуле изобретения для сходства патентов и предсказания CPC. Показывает, что одна формула уже несет сильный сигнал. |
+| Поиск по патентам | PatentMatch: A Dataset for Matching Patent Claims & Prior Art | 2021 | Risch et al. | [arXiv](https://arxiv.org/abs/2012.13919) | Пары «пункт формулы — фрагмент документа уровня техники», размеченные экспертами EPO. Разметка релевантности на уровне фрагментов. |
+| Поиск по патентам | Domain-specific Word Embeddings for Patent Classification | 2019 | Risch, Krestel | [DOI](https://doi.org/10.1108/DTA-01-2019-0002) | Векторные представления слов, обученные на 5 млн патентов. Подтверждает, что язык патентов отличается от общего. |
+| Поиск по патентам | Patent Classification by Fine-tuning BERT Language Model | 2020 | Lee, Hsiang | [arXiv](https://arxiv.org/abs/1906.02124) | PatentBERT для классификации CPC. Классы CPC как слабый сигнал релевантности. |
+| Поиск по патентам | BIGPATENT: A Large-Scale Dataset for Abstractive and Coherent Summarization | 2019 | Sharma, Li, Wang | [arXiv](https://arxiv.org/abs/1906.03741) | 1,3 млн патентов США с описаниями и рефератами. Источник данных; реферат как сжатое описание. |
+| Поиск по патентам | The Harvard USPTO Patent Dataset: A Large-Scale, Well-Structured, and Multi-Purpose Corpus of Patent Applications | 2023 | Suzgun et al. | [arXiv](https://arxiv.org/abs/2207.04043) | Заявки USPTO с разметкой разделов. Возможный дополнительный корпус. |
+| Поиск по патентам | Patent Retrieval: A Literature Review | 2019 | Shalaby, Zadrozny | [arXiv](https://arxiv.org/abs/1701.00324) | Обзор методов поиска уровня техники и их оценки. Материал для введения. |
+| Поиск по патентам | A Survey on Deep Learning for Patent Analysis | 2021 | Krestel et al. | [ScienceDirect](https://www.sciencedirect.com/science/article/pii/S017221902100017X) | Обзор 40 работ по глубокому обучению для патентов. Материал для введения. |
+| Поиск по патентам | Artificial Intelligence for Patent Prior Art Searching | 2021 | Setchi et al. | [DOI](https://doi.org/10.1016/j.wpi.2021.102021) | ИИ в помощь экспертам UKIPO: плохо составляет запросы, но помогает ранжировать и просматривать. Практическая мотивация. |
+| Поиск по патентам | Natural Language Processing in the Patent Domain: A Survey | 2025 | Jiang, Goetz | [arXiv](https://arxiv.org/abs/2403.04105) | Структура и язык патентов, наборы данных и задачи. Источник для описания разделов патента. |
+| Поиск по патентам | A Survey on Patent Analysis: From NLP to Multimodal AI | 2025 | Shomee et al. | [arXiv](https://arxiv.org/abs/2404.08668) | Свежий обзор задач поиска и анализа патентов. Материал для введения. |
+| Поиск по патентам | Multilingual Patent Text Retrieval Evaluation: CLEF–IP | 2019 | Piroi, Hanbury | [DOI](https://doi.org/10.1007/978-3-030-22948-1_15) | Бенчмарк поиска уровня техники с релевантностью по ссылкам. Прецедент использования ссылок как разметки. |
+| Поиск по патентам | An Automatic Patent Literature Retrieval System Based on LLM-RAG | 2025 | Ding, Wu, Ding | [arXiv](https://arxiv.org/abs/2508.14064) | Конвейер RAG для патентного поиска. Пример целевого применения. |
+
+## Базовые методы
+
+1. **Нарезка фиксированной длины** — нижняя граница и самый распространенный на практике вариант.
+2. **Группировка абзацев** (Shaukat et al., 2026) — самый сильный из дешевых методов, основной конкурент.
+3. **RAPTOR, сплющенное дерево** (Sarthi et al., 2024) — дорогой верхний ориентир.
+
+## Нерешенная задача
+
+Ни одна из рассмотренных работ не использует смысловую структуру патента (формулу изобретения, технический результат, постановку задачи, уровень техники) при нарезке и не измеряет вклад отдельных разделов в качество поиска при готовых моделях векторных представлений.
